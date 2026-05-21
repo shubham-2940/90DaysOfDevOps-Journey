@@ -87,15 +87,6 @@ My goal is to transition into a **DevOps Engineer role** by building strong prac
 
 ---
 
-# 📈 GitHub Stats
-
-<p align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=shubham-2940&show_icons=true&theme=tokyonight" height="180em" />
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=shubham-2940&layout=compact&theme=tokyonight" height="180em" />
-</p>
-
----
-
 # 🌐 Connect With Me
 
 🔗 LinkedIn:
