@@ -1,46 +1,108 @@
-🚀 **Day 18/90 – Shell Scripting: Writing Bash Like a DevOps Engineer**
+# Day 19 – Shell Scripting Project: Log Rotation, Backup & Crontab
 
-Today I realized something interesting...
+## Task
+Apply everything from Days 16–18 in real-world mini projects.
 
-Anyone can write a Bash script that *works*.
+You will:
+- Write a **log rotation** script
+- Write a **server backup** script
+- Schedule them with **crontab**
 
-But writing a Bash script that's **safe, reusable, and easy to maintain** is a completely different skill.
+---
 
-So today I moved beyond basic scripting and focused on writing production-style Bash scripts.
+## Expected Output
+- A markdown file: `day-19-project.md`
+- All scripts you write during the tasks
 
-Here's what I built:
+---
 
-✅ Functions to make scripts modular and reusable
-✅ Parameterized functions with arguments and return values
-✅ `set -euo pipefail` to catch errors before they become bigger problems
-✅ Local variables to avoid unexpected side effects
-✅ A complete **System Information Reporter** that displays:
+## Challenge Tasks
 
-* Hostname & OS details
-* System uptime
-* Disk usage
-* Memory usage
-* Top CPU-consuming processes
+### Task 1: Log Rotation Script
+Create `log_rotate.sh` that:
+1. Takes a log directory as an argument (e.g., `/var/log/myapp`)
+2. Compresses `.log` files older than 7 days using `gzip`
+3. Deletes `.gz` files older than 30 days
+4. Prints how many files were compressed and deleted
+5. Exits with an error if the directory doesn't exist
 
-One of the biggest takeaways was understanding why experienced DevOps engineers always recommend:
+---
 
-```bash
-set -euo pipefail
-```
+### Task 2: Server Backup Script
+Create `backup.sh` that:
+1. Takes a source directory and backup destination as arguments
+2. Creates a timestamped `.tar.gz` archive (e.g., `backup-2026-02-08.tar.gz`)
+3. Verifies the archive was created successfully
+4. Prints archive name and size
+5. Deletes backups older than 14 days from the destination
+6. Handles errors — exit if source doesn't exist
 
-At first, it looked like just another line of code.
+---
 
-Now I understand it's one of the simplest ways to make Bash scripts far more reliable by preventing silent failures and catching mistakes early.
+### Task 3: Crontab
+1. Read: `crontab -l` — what's currently scheduled?
+2. Understand cron syntax:
+   ```
+   * * * * *  command
+   │ │ │ │ │
+   │ │ │ │ └── Day of week (0-7)
+   │ │ │ └──── Month (1-12)
+   │ │ └────── Day of month (1-31)
+   │ └──────── Hour (0-23)
+   └────────── Minute (0-59)
+   ```
+3. Write cron entries (in your markdown, don't apply if unsure) for:
+   - Run `log_rotate.sh` every day at 2 AM
+   - Run `backup.sh` every Sunday at 3 AM
+   - Run a health check script every 5 minutes
 
-💡 **Learning isn't just about making scripts run.**
-It's about writing scripts that are predictable, maintainable, and production-ready.
+---
 
-Every day in this #90DaysOfDevOps journey is making me think less like someone who writes commands... and more like someone who automates systems.
+### Task 4: Combine — Scheduled Maintenance Script
+Create `maintenance.sh` that:
+1. Calls your log rotation function
+2. Calls your backup function
+3. Logs all output to `/var/log/maintenance.log` with timestamps
+4. Write the cron entry to run it daily at 1 AM
 
-📌 **Question for the DevOps community:**
+---
 
-What's one Bash scripting practice or trick that made the biggest difference in your career?
+## Hints
+- Compress old files: `find /path -name "*.log" -mtime +7 -exec gzip {} \;`
+- Timestamp: `date +%Y-%m-%d`
+- Tar: `tar -czf backup.tar.gz /source/dir`
+- Cron edit: `crontab -e`
+- Log with timestamp: `echo "$(date): message" >> logfile`
 
-I'd love to learn from your experience. 👇
+---
 
-#90DaysOfDevOps #DevOps #Linux #Bash #ShellScripting #Automation #Cloud #AWS #Infrastructure #SystemAdministration #OpenToWork #ContinuousLearning
+## Documentation
+
+Create `day-19-project.md` with:
+- Each script's code
+- Sample outputs
+- Cron entries you wrote
+- What you learned (3 key points)
+
+---
+
+## Submission
+1. Add your scripts and `day-19-project.md` to `2026/day-19/`
+2. Commit and push to your fork
+
+---
+
+## Reference Video
+
+[![Watch the video](https://img.youtube.com/vi/PZYJ33bMXAw/0.jpg)](https://youtu.be/PZYJ33bMXAw?si=RzEzOSom7-FqnopA)
+
+---
+
+## Learn in Public
+
+Share your shell scripting projects on LinkedIn.
+
+`#90DaysOfDevOps` `#DevOpsKaJosh` `#TrainWithShubham`
+
+Happy Learning!
+**TrainWithShubham**
