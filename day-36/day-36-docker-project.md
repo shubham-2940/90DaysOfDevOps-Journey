@@ -2,412 +2,51 @@
 
 ## Objective
 
-The objective of this task was to Dockerize a complete full-stack application by creating optimized Docker images, orchestrating multiple services using Docker Compose, and deploying the application using containers. This project demonstrates how Docker is used in real-world environments to package applications consistently across different systems.
+The objective of this project was to Dockerize a complete full-stack application using Docker and Docker Compose. The application consists of a React frontend, Go backend, and PostgreSQL database. The goal was to containerize each component, connect them using Docker networking, and manage the entire application through Docker Compose.
 
 ---
 
-# Application Chosen
+# Project Chosen
 
-**Project:** DevBoard MVP
+## DevBoard MVP
 
-I chose the **DevBoard MVP** project because it is a complete full-stack application consisting of:
+**GitHub Repository:**
+https://github.com/trainwithshubham/devboard
 
-- React + Vite Frontend
-- Go (Gin) Backend API
-- PostgreSQL Database
+### Why I chose this project
 
-This project allowed me to practice Dockerizing multiple services and managing them using Docker Compose.
+I selected DevBoard MVP because it represents a real-world full-stack application. It includes multiple services that communicate with each other, making it an excellent project to understand production-like Docker workflows.
 
----
+This project helped me learn:
 
-# Project Architecture
-
-```
-                +--------------------+
-                |    React Frontend  |
-                |      Port 4173     |
-                +----------+---------+
-                           |
-                           |
-                    HTTP Requests
-                           |
-                +----------v---------+
-                |    Go Backend API  |
-                |      Port 8080     |
-                +----------+---------+
-                           |
-                     PostgreSQL Driver
-                           |
-                +----------v---------+
-                |     PostgreSQL     |
-                |      Port 5432     |
-                +--------------------+
-```
-
----
-
-# Technologies Used
-
-- Docker
+- Dockerizing frontend and backend separately
+- Multi-stage Docker builds
+- Working with PostgreSQL containers
+- Docker networking
+- Docker volumes
+- Environment variables
 - Docker Compose
-- React + Vite
-- Go (Gin Framework)
-- PostgreSQL
-- BuildKit
-- Alpine Linux Images
+- Container communication
+- Running an entire application using a single command
 
 ---
 
-# Task 1 – Dockerizing the Application
-
-The repository was cloned from GitHub.
-
-```bash
-git clone https://github.com/shubham-2940/devboard.git
-```
-
-The project contains three main components:
-
-- frontend
-- backend
-- PostgreSQL
-
----
-
-# Task 2 – Dockerfile
-
-## Frontend Dockerfile
-
-### Build Stage
-
-- Uses **Node 20 Alpine**
-- Installs dependencies
-- Builds React application
-
-### Runtime Stage
-
-- Uses lightweight Node Alpine image
-- Creates non-root user
-- Copies build artifacts
-- Exposes port **4173**
-
-Benefits:
-
-- Smaller image
-- Better security
-- Faster deployments
-
----
-
-## Backend Dockerfile
-
-### Build Stage
-
-- Uses Go Alpine image
-- Downloads dependencies
-- Compiles Go binary
-
-### Runtime Stage
-
-- Uses Alpine Linux
-- Creates non-root user
-- Copies compiled binary only
-- Exposes port **8080**
-
-Benefits:
-
-- Very small image
-- Secure runtime
-- Fast startup
-
----
-
-## .dockerignore
-
-A `.dockerignore` file was added to reduce build context.
-
-Ignored files:
-
-```
-node_modules
-dist
-.git
-.env
-Dockerfile
-README.md
-```
-
-Benefits:
-
-- Faster builds
-- Smaller build context
-- Better caching
-
----
-
-# Task 3 – Docker Compose
-
-Docker Compose was used to orchestrate all services.
-
-Services included:
-
-## Frontend
-
-- Built from local Dockerfile
-- Runs on port **4173**
-
-## Backend
-
-- Built from local Dockerfile
-- Runs on port **8080**
-- Connects to PostgreSQL
-
-## PostgreSQL
-
-- Image:
-```
-postgres:16-alpine
-```
-
-Configured with:
-
-- Persistent Volume
-- Custom Network
-- Environment Variables
-- Health Check
-
----
-
-## Network
-
-Custom bridge network:
-
-```
-devboard-net
-```
-
-This allows containers to communicate using service names.
-
----
-
-## Persistent Storage
-
-Docker Volume was used for PostgreSQL database persistence.
-
-Benefits:
-
-- Database survives container restart
-- Persistent application data
-
----
-
-## Environment Variables
-
-Environment variables were stored using a `.env` file.
-
-Example:
-
-```env
-POSTGRES_USER=devboard
-POSTGRES_PASSWORD=devboard
-POSTGRES_DB=devboard
-DATABASE_URL=postgres://devboard:devboard@postgres:5432/devboard?sslmode=disable
-```
-
----
-
-## Health Check
-
-A health check was configured for PostgreSQL.
-
-Example:
-
-```yaml
-healthcheck:
-  test: ["CMD-SHELL", "pg_isready -U devboard"]
-  interval: 5s
-  timeout: 5s
-  retries: 5
-```
-
-This ensures the backend starts only after the database becomes healthy.
-
----
-
-# Task 4 – Build Images
-
-Frontend Image
-
-```bash
-docker build -t devboard-frontend ./frontend
-```
-
-Backend Image
-
-```bash
-docker build -t devboard-backend ./backend
-```
-
----
-
-# Docker Compose
-
-Application started using:
-
-```bash
-docker compose up --build
-```
-
-All services were connected successfully through Docker Compose.
-
----
-
-# Task 5 – Push Images to Docker Hub
+# Tech Stack
 
 Frontend
-
-```bash
-docker tag devboard-frontend trainwithshubham/devboard-frontend:latest
-docker push trainwithshubham/devboard-frontend:latest
-```
+- React
+- Vite
 
 Backend
+- Golang
+- Gin Framework
 
-```bash
-docker tag devboard-backend trainwithshubham/devboard-backend:latest
-docker push trainwithshubham/devboard-backend:latest
-```
+Database
+- PostgreSQL 16
 
-Docker Hub Repository:
-
-```
-https://hub.docker.com/u/trainwithshubham
-```
-
----
-
-# Challenges Faced
-
-## 1. Git Checkout Failed
-
-### Error
-
-```
-pathspec 'advanced' did not match any file(s)
-```
-
-### Solution
-
-Entered the cloned repository before switching branches and verified available branches.
-
----
-
-## 2. Docker Build Context Error
-
-### Error
-
-```
-path "./frontend" not found
-```
-
-### Solution
-
-Moved into the correct project directory before running the Docker build command.
-
----
-
-## 3. npm ci Failed
-
-### Error
-
-```
-Exit Code 137
-```
-
-### Reason
-
-Low RAM on EC2 instance.
-
-### Solution
-
-Created swap memory to prevent the build process from being terminated.
-
----
-
-## 4. PostgreSQL Network Error
-
-### Error
-
-```
-network devboard-net not found
-```
-
-### Solution
-
-Created a custom Docker network before starting the PostgreSQL container.
-
----
-
-## 5. Database Tables Missing
-
-### Error
-
-```
-relation "projects" does not exist
-relation "tasks" does not exist
-```
-
-### Reason
-
-Initialization SQL scripts were not executed.
-
-### Solution
-
-Recreated the PostgreSQL container and initialized the database with the SQL schema and seed files.
-
----
-
-## 6. Disk Space Exhausted
-
-### Error
-
-```
-no space left on device
-```
-
-### Reason
-
-EC2 root volume became full after multiple Docker builds.
-
-### Solution
-
-Removed unused Docker images, containers, volumes, and build cache using Docker prune commands.
-
----
-
-# Testing
-
-The application was tested by:
-
-- Building frontend image
-- Building backend image
-- Running PostgreSQL
-- Starting all services using Docker Compose
-- Verifying API connectivity
-- Accessing frontend through browser
-- Creating sample tasks
-
----
-
-# Final Image Sizes
-
-| Image | Approximate Size |
-|--------|-----------------:|
-| Frontend | ~170 MB |
-| Backend | ~20 MB |
-| PostgreSQL | Official Image |
-
-*(Image sizes may vary depending on the latest base images and dependencies.)*
+Containerization
+- Docker
+- Docker Compose
 
 ---
 
@@ -416,14 +55,17 @@ The application was tested by:
 ```
 devboard/
 │
-├── frontend/
-│   ├── Dockerfile
-│   ├── .dockerignore
-│   └── ...
-│
 ├── backend/
 │   ├── Dockerfile
-│   └── ...
+│   ├── main.go
+│   ├── go.mod
+│   └── go.sum
+│
+├── frontend/
+│   ├── Dockerfile
+│   ├── package.json
+│   ├── vite.config.js
+│   └── src/
 │
 ├── init/
 │   └── postgres/
@@ -437,23 +79,442 @@ devboard/
 
 ---
 
-# Key Learnings
+# Dockerfile (Frontend)
 
-- Dockerizing frontend and backend applications
+```dockerfile
+# Stage 1 - Build React application
+FROM node:20-alpine AS build
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm ci
+
+COPY . .
+
+RUN npm run build
+
+# Stage 2 - Production Image
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm install --omit=dev
+
+COPY --from=build /app/dist ./dist
+
+COPY vite.preview.config.js ./vite.config.js
+
+EXPOSE 4173
+
+CMD ["vite","preview","--host","0.0.0.0","--port","4173"]
+```
+
+### Explanation
+
+### FROM node:20-alpine AS build
+
+Uses a lightweight Alpine Linux image to build the React application.
+
+### WORKDIR /app
+
+Sets the working directory inside the container.
+
+### COPY package*.json ./
+
+Copies dependency files.
+
+### RUN npm ci
+
+Installs project dependencies.
+
+### COPY . .
+
+Copies application source code.
+
+### RUN npm run build
+
+Creates the optimized production build.
+
+### Second Stage
+
+A new clean Node image is used.
+
+Only production files are copied.
+
+This reduces image size significantly.
+
+---
+
+# Dockerfile (Backend)
+
+```dockerfile
+FROM golang:1.22-alpine AS build
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
+
+RUN go mod download
+
+COPY . .
+
+RUN CGO_ENABLED=0 go build -o devboard-backend .
+
+FROM alpine:latest
+
+RUN adduser -D -u 10001 app
+
+WORKDIR /app
+
+COPY --from=build /app/devboard-backend .
+
+USER app
+
+EXPOSE 8080
+
+CMD ["./devboard-backend"]
+```
+
+### Explanation
+
+Uses a multi-stage build.
+
+Downloads Go dependencies.
+
+Builds a static binary.
+
+Copies only the binary into the final image.
+
+Runs the application as a non-root user for better security.
+
+---
+
+# .dockerignore
+
+```
+node_modules
+.git
+.gitignore
+README.md
+Dockerfile
+dist
+.env
+```
+
+## Why use .dockerignore?
+
+- Smaller build context
+- Faster Docker builds
+- Keeps unnecessary files out of the image
+
+---
+
+# Docker Compose
+
+The project uses Docker Compose to manage all services together.
+
+Services include:
+
+- Frontend
+- Backend
+- PostgreSQL
+
+Docker Compose provides:
+
+- Automatic networking
+- Environment variable management
+- Persistent database storage
+- Service dependency management
+
+---
+
+# Docker Compose Features
+
+## Frontend
+
+- Built from frontend Dockerfile
+- Exposes port 8080
+- Connected to custom network
+
+---
+
+## Backend
+
+- Built from backend Dockerfile
+- Exposes port 8081
+- Uses environment variables
+- Connects with PostgreSQL
+
+---
+
+## PostgreSQL
+
+- Uses postgres:16-alpine
+- Database persistence through Docker volumes
+- Automatically executes initialization SQL scripts
+- Healthcheck enabled
+
+---
+
+# Environment Variables
+
+Example .env
+
+```
+POSTGRES_USER=devboard
+POSTGRES_PASSWORD=devboard
+POSTGRES_DB=devboard
+
+DATABASE_URL=postgres://devboard:devboard@postgres:5432/devboard?sslmode=disable
+```
+
+Using environment variables keeps sensitive configuration outside the application code.
+
+---
+
+# Docker Network
+
+A custom bridge network is created.
+
+```
+devboard-net
+```
+
+Benefits
+
+- Container-to-container communication
+- DNS resolution by container name
+- Better isolation
+
+---
+
+# Docker Volume
+
+A named volume is used for PostgreSQL.
+
+Benefits
+
+- Persistent database storage
+- Data survives container recreation
+
+---
+
+# Healthcheck
+
+Healthchecks ensure PostgreSQL is ready before the backend starts.
+
+Example
+
+```yaml
+healthcheck:
+  test: ["CMD-SHELL","pg_isready -U devboard"]
+  interval: 10s
+  timeout: 5s
+  retries: 5
+```
+
+---
+
+# Running the Project
+
+Clone repository
+
+```
+git clone https://github.com/trainwithshubham/devboard.git
+```
+
+Navigate
+
+```
+cd devboard
+```
+
+Start application
+
+```
+docker compose up --build
+```
+
+Run in detached mode
+
+```
+docker compose up -d
+```
+
+Stop application
+
+```
+docker compose down
+```
+
+---
+
+# Challenges Faced
+
+## 1. Git checkout failed
+
+Issue
+
+```
+pathspec 'advanced' did not match
+```
+
+Solution
+
+I was running the command outside the repository. After navigating into the cloned project, the command worked correctly.
+
+---
+
+## 2. Frontend build failed
+
+Issue
+
+```
+npm ci returned code 137
+```
+
+Reason
+
+EC2 instance ran out of memory.
+
+Solution
+
+Created a swap file to provide additional virtual memory, allowing the build to complete successfully.
+
+---
+
+## 3. PostgreSQL tables missing
+
+Issue
+
+```
+relation "projects" does not exist
+relation "tasks" does not exist
+```
+
+Reason
+
+Database initialization scripts were not executed because the database had already been initialized before mounting the SQL files.
+
+Solution
+
+Removed the PostgreSQL container and recreated it with the correct initialization script mount so that the schema and seed SQL files were executed.
+
+---
+
+## 4. Docker Network Error
+
+Issue
+
+```
+network devboard-net not found
+```
+
+Solution
+
+Created the custom Docker network before starting the PostgreSQL container.
+
+---
+
+## 5. No Space Left on Device
+
+Issue
+
+```
+no space left on device
+```
+
+Reason
+
+The EC2 root volume became full due to Docker images, build cache, and containers.
+
+Solution
+
+Cleaned unused Docker resources using Docker prune commands and freed up disk space.
+
+---
+
+# Security Improvements
+
+Implemented the following best practices:
+
+- Multi-stage builds
+- Lightweight Alpine images
+- Non-root user
+- Docker Compose
+- Environment variables
+- Persistent volumes
+- Custom network
+- Healthchecks
+
+---
+
+# Final Image Sizes
+
+| Image | Approximate Size |
+|--------|-----------------:|
+| Frontend | ~170 MB |
+| Backend | ~20 MB |
+| PostgreSQL | Official Image |
+
+(Replace with your actual sizes using `docker images`.)
+
+---
+
+# Docker Hub Images
+
+Frontend
+
+```
+docker pull trainwithshubham/devboard-frontend
+```
+
+Backend
+
+```
+docker pull trainwithshubham/devboard-backend
+```
+
+Replace these with your own Docker Hub repository names if you pushed them under your account.
+
+---
+
+# Testing the Complete Flow
+
+The application was tested from scratch using the following process:
+
+1. Removed all containers
+2. Removed all images
+3. Pulled images from Docker Hub
+4. Started services using Docker Compose
+5. Verified frontend, backend, and PostgreSQL communication
+6. Confirmed the application worked successfully
+
+---
+
+# Learning Outcomes
+
+Through this project, I learned:
+
 - Multi-stage Docker builds
-- Using Alpine images for lightweight containers
-- Creating secure containers using non-root users
-- Writing efficient Dockerfiles
-- Managing multi-container applications with Docker Compose
-- Configuring custom Docker networks
-- Using Docker volumes for persistent data
-- Managing environment variables with `.env`
-- Adding database health checks
-- Troubleshooting container networking, database initialization, memory, and storage issues
-- Publishing Docker images to Docker Hub
+- Building production-ready Docker images
+- Docker networking
+- Docker volumes
+- Docker Compose
+- PostgreSQL containerization
+- Running containers as non-root users
+- Environment variable management
+- Healthchecks
+- Debugging Docker build failures
+- Debugging container networking
+- Database initialization using Docker
 
 ---
 
 # Conclusion
 
-Successfully Dockerized a full-stack application consisting of a React frontend, Go backend, and PostgreSQL database. Implemented multi-stage builds, non-root containers, Docker Compose orchestration, persistent storage, health checks, environment variables, and published images to Docker Hub. This project provided hands-on experience with deploying a production-like containerized application and resolving common real-world Docker issues.
+This project provided hands-on experience with containerizing a real-world full-stack application. I successfully Dockerized the frontend, backend, and PostgreSQL database, managed them using Docker Compose, implemented production best practices such as multi-stage builds and non-root users, and resolved common issues related to memory, storage, networking, and database initialization. This exercise closely resembles real-world Docker workflows used in modern DevOps environments.
